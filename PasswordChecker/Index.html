@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Passwort-Check – IT‑Girls Camp</title>
+  <meta name="description" content="Gib ein Passwort ein und sieh sofort: gut oder schlecht – als Smiley!" />
+  <style>
+    :root{
+      --bg:#0b1020;         /* dunkler Hintergrund, wirkt modern und ruhig */
+      --card:#141b34;
+      --text:#e6e8ef;
+      --muted:#a9b0c7;
+      --good:#22c55e;       /* grün */
+      --bad:#ef4444;        /* rot */
+      --focus:#7c3aed;      /* violett */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 20% -10%, #1c2450 0%, transparent 60%),
+                  radial-gradient(1000px 600px at 120% 10%, #1a2e5e 0%, transparent 50%),
+                  var(--bg);
+      display:grid;
+      place-items:center;
+      padding:24px;
+    }
+    .card{
+      width:min(680px, 100%);
+      background:linear-gradient(180deg, #151b32 0%, #121831 100%);
+      border:1px solid #2a345e;
+      border-radius:20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      padding:28px;
+    }
+    h1{
+      font-size:clamp(22px, 2.2vw + 12px, 32px);
+      margin:0 0 10px;
+      letter-spacing:.3px;
+    }
+    p.topline{margin:.2rem 0 1.2rem;color:var(--muted)}
+
+    label{display:block;font-weight:600;margin:6px 0 8px}
+    .input-row{display:flex;gap:8px}
+    input[type="password"], input[type="text"]{
+      flex:1;
+      background:#0f1530;
+      color:var(--text);
+      border:1px solid #2a345e;
+      border-radius:12px;
+      padding:14px 14px;
+      font-size:18px;
+      outline:none;
+    }
+    input:focus{border-color:var(--focus); box-shadow:0 0 0 3px #7c3aed33}
+    button.eye{
+      background:#0f1530;
+      color:var(--muted);
+      border:1px solid #2a345e;
+      border-radius:12px;
+      padding:0 14px;
+      font-size:16px;
+      cursor:pointer;
+    }
+    .result{
+      margin:14px 0 0;
+      display:flex; align-items:center; gap:12px;
+      min-height:64px;
+      border-radius:14px; padding:12px 14px; border:1px dashed #2a345e;
+      background:#0e1430;
+    }
+    .emoji{font-size:40px; line-height:1}
+    .msg{font-size:18px}
+    .msg small{display:block;color:var(--muted)}
+
+    .hints{margin:18px 0 0; color:var(--muted); font-size:15px}
+    .hints ul{margin:.4rem 0 0 1.1rem}
+
+    .badge{display:inline-block; font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid #2a345e; color:var(--muted)}
+    .bad{color:var(--bad)}
+    .good{color:var(--good)}
+
+    footer{margin-top:16px; color:#9aa3c7; font-size:12px}
+    footer a{color:#c3ccff}
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="title">
+    <div style="display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap">
+      <div>
+        <h1 id="title">Passwort-Check <span class="badge">IT‑Girls Camp</span></h1>
+        <p class="topline">Gib ein Passwort ein und sieh sofort: <strong>gut</strong> 😀 oder <strong>schlecht</strong> 😞.</p>
+      </div>
+    </div>
+
+    <label for="pw">Dein Passwort</label>
+    <div class="input-row">
+      <input id="pw" name="pw" type="password" autocomplete="off" aria-describedby="hint" placeholder="Tippe hier …" />
+      <button class="eye" id="toggle" aria-label="Passwort anzeigen">👁️</button>
+    </div>
+
+    <section class="result" aria-live="polite" aria-atomic="true">
+      <div class="emoji" id="emoji" aria-hidden="true">😐</div>
+      <div class="msg" id="message">Warte auf Eingabe …<small id="detail">Mindestens 12 Zeichen, Mix aus Buchstaben, Zahl & Zeichen</small></div>
+    </section>
+
+    <div class="hints">
+      <strong>Tipps:</strong>
+      <ul>
+        <li>Nutze <em>mind. 12 Zeichen</em> und mische <em>Groß‑/Kleinbuchstaben, Ziffern, Sonderzeichen</em>.</li>
+        <li>Keine Namen, Geburtsdaten oder einfachen Muster ("123456", "qwerty").</li>
+        <li>Lange <em>Passphrasen</em> sind super: z.B. <code>MeerHund!Wolke7</code>.</li>
+      </ul>
+    </div>
+
+    <footer>
+      Dieses Tool speichert nichts. Alle Checks passieren <strong>nur im Browser</strong>.
+    </footer>
+  </main>
+
+<script>
+  // Kleiner Wortschatz häufiger, unsicherer Passwörter/Fragmente
+  const blacklist = new Set([
+    '123456','12345678','123456789','password','passwort','qwerty','iloveyou','admin',
+    'welcome','abc123','letmein','dragon','monkey','111111','000000','football','princess',
+    'login','freedom','pokemon','starwars','sunshine','qwertz','hallo','test'
+  ]);
+
+  const pwInput = document.getElementById('pw');
+  const emoji = document.getElementById('emoji');
+  const message = document.getElementById('message');
+  const detail = document.getElementById('detail');
+  const toggle = document.getElementById('toggle');
+
+  toggle.addEventListener('click', (e)=>{
+    e.preventDefault();
+    const isPwd = pwInput.type === 'password';
+    pwInput.type = isPwd ? 'text' : 'password';
+    toggle.textContent = isPwd ? '🙈' : '👁️';
+    toggle.setAttribute('aria-label', isPwd ? 'Passwort verbergen' : 'Passwort anzeigen');
+  });
+
+  function scorePassword(pw){
+    if(!pw) return {score:0, reasons:['leer']};
+
+    const reasons = [];
+    const lengthScore = Math.min(4, Math.floor(pw.length/3)); // bis 4 Punkte
+
+    const lower = /[a-zäöüß]/.test(pw);
+    const upper = /[A-ZÄÖÜ]/.test(pw);
+    const digit = /\d/.test(pw);
+    const symbol = /[^\wäöüÄÖÜß]/.test(pw); // Sonderzeichen
+
+    let variety = 0; if(lower) variety++; if(upper) variety++; if(digit) variety++; if(symbol) variety++;
+
+    // Muster/Strafen
+    const hasSpaces = /\s/.test(pw);
+    const repeats = /(.)\1{2,}/.test(pw);       // aaa oder 000
+    const sequences = /(0123|1234|2345|3456|4567|5678|6789|abcd|qwer|asdf|zxcv)/i.test(pw);
+    const common = blacklist.has(pw.toLowerCase());
+
+    let score = lengthScore + variety; // 0..8 grob
+
+    if(repeats) { score -= 2; reasons.push('Wiederholungen'); }
+    if(sequences){ score -= 2; reasons.push('einfache Reihenfolge'); }
+    if(common){ score = 0; reasons.push('allzu häufig'); }
+    if(hasSpaces){ score += 0; } // weder gut noch schlecht
+
+    // Bonus für sehr lang
+    if(pw.length >= 16 && variety >= 3) score += 1;
+
+    return {score: Math.max(0, Math.min(10, score)), reasons};
+  }
+
+  function evaluate(){
+    const pw = pwInput.value;
+    const {score, reasons} = scorePassword(pw);
+
+    // Minimalregeln für "gut":
+    const good = pw.length >= 12 && /[a-zäöüß]/i.test(pw) && /\d/.test(pw) && /[^\wäöüÄÖÜß]/.test(pw)
+                 && reasons.indexOf('allzu häufig') === -1 && reasons.indexOf('einfache Reihenfolge') === -1;
+
+    if(!pw){
+      emoji.textContent = '😐';
+      message.firstChild.nodeValue = 'Warte auf Eingabe … ';
+      detail.textContent = 'Mindestens 12 Zeichen, Mix aus Buchstaben, Zahl & Zeichen';
+      message.classList.remove('good','bad');
+      return;
+    }
+
+    if(good && score >= 6){
+      emoji.textContent = '😀';
+      message.firstChild.nodeValue = 'Gut! ';
+      detail.textContent = 'Dein Passwort wirkt stark.';
+      message.classList.add('good');
+      message.classList.remove('bad');
+    } else {
+      emoji.textContent = '😞';
+      message.firstChild.nodeValue = 'Schwach. ';
+      const why = [];
+      if(pw.length < 12) why.push('zu kurz');
+      const variety = ['Buchstaben','Großbuchstaben','Zahlen','Sonderzeichen'].filter((_,i)=>{
+        const flags=[/[a-zäöüß]/,/[A-ZÄÖÜ]/,/\d/,/[^\wäöüÄÖÜß]/].map(rx=>rx.test(pw));
+        return !flags[i];
+      }).join(', ');
+      if(variety) why.push('zu wenig Vielfalt ('+variety+')');
+      if(reasons.length) why.push(reasons.join(', '));
+      detail.textContent = why.length ? ('Grund: ' + why.join('; ')) : 'Versuche länger & vielfältiger zu werden.';
+      message.classList.add('bad');
+      message.classList.remove('good');
+    }
+  }
+
+  pwInput.addEventListener('input', evaluate);
+  // Sofort prüfen, falls Browser einfügt
+  evaluate();
+</script>
+</body>
+</html>
