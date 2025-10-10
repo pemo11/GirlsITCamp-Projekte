@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IT‑Girls Camp – Projekte</title>
+  <meta name="description" content="Übersicht: Password-Smiley-Checker, Phishing-Test, CheckMyEMail, WhereDoILive" />
+  <style>
+    :root{--bg:#f6f8ff;--card:#ffffff;--accent:#6c5ce7;--muted:#556;--glass:rgba(255,255,255,0.6)}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:linear-gradient(180deg,#f7f9ff 0%,#eef2ff 100%);color:#0c1630;padding:28px}
+    .wrap{max-width:980px;margin:0 auto}
+    header{display:flex;align-items:center;gap:16px}
+    .logo{width:72px;height:56px;border-radius:10px;background:linear-gradient(90deg,#eef  ,#dfe8ff);display:flex;align-items:center;justify-content:center;font-weight:800;color:#2b3b8f}
+    h1{margin:0;font-size:22px}
+    p.lead{margin:6px 0 18px;color:var(--muted)}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+    .card{background:var(--card);border-radius:12px;padding:14px;border:1px solid #e6ecff;box-shadow:0 8px 24px rgba(15,23,50,0.04)}
+    .card h3{margin:0 0 8px;font-size:16px}
+    .card p{margin:0 0 12px;color:var(--muted);font-size:14px}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:none;background:var(--accent);color:white;font-weight:700;text-decoration:none}
+    .ghost{background:transparent;border:1px solid #e3e8ff;color:var(--muted);font-weight:600;padding:8px 10px;border-radius:8px}
+
+    .meta{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .small{font-size:13px;color:var(--muted)}
+
+    .editor{margin-top:18px;background:linear-gradient(180deg,#fff,#fbfdff);padding:12px;border-radius:10px;border:1px dashed #e6ecff}
+    label{font-size:13px;color:var(--muted);display:block;margin-top:6px}
+    input[type=text]{width:100%;padding:8px;border-radius:8px;border:1px solid #e8efff;margin-top:6px}
+    .actions{margin-top:10px;display:flex;gap:8px}
+
+    footer{margin-top:20px;color:var(--muted);font-size:13px}
+
+    @media (prefers-color-scheme: dark){:root{--bg:#071024;--card:#07162a}}
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main">
+    <header>
+      <div class="logo" aria-hidden="true">IT<br>GIRLS</div>
+      <div>
+        <h1>IT‑Girls Camp — Projektübersicht</h1>
+        <p class="lead">Klicke auf ein Projekt, um es zu öffnen. Die URLs sind derzeit Platzhalter — du kannst sie unten einfügen oder später direkt im Code ersetzen.</p>
+      </div>
+    </header>
+
+    <section class="grid" aria-label="Projekte">
+      <article class="card" id="card-1">
+        <h3>🔐 Password‑Smiley‑Checker</h3>
+        <p>Schnellprüfung von Passwörtern mit Smiley‑Feedback: gut 😄 / schlecht 😞</p>
+        <a class="btn" id="link-1" href="#" target="_blank" rel="noopener noreferrer">Öffnen (URL fehlt)</a>
+      </article>
+
+      <article class="card" id="card-2">
+        <h3>🎣 Phishing‑Test (Simulation)</h3>
+        <p>Sichere Lehr‑Simulation: zeigt lokal, was eine Phishing‑Seite sehen könnte (keine Netzwerk‑Requests).</p>
+        <a class="btn" id="link-2" href="#" target="_blank" rel="noopener noreferrer">Öffnen (URL fehlt)</a>
+      </article>
+
+      <article class="card" id="card-3">
+        <h3>📧 CheckMyEMail</h3>
+        <p>Kleine Demo: Was zeigt eine E‑Mail‑Vorschau? (Erkennung von Absendern, Betreffen, Links)</p>
+        <a class="btn" id="link-3" href="#" target="_blank" rel="noopener noreferrer">Öffnen (URL fehlt)</a>
+      </article>
+
+      <article class="card" id="card-4">
+        <h3>📍 WhereDoILive</h3>
+        <p>Ortungsdemo (nur Demo): Datenschutzhinweise und wie man Standortfreigaben überprüft.</p>
+        <a class="btn" id="link-4" href="#" target="_blank" rel="noopener noreferrer">Öffnen (URL fehlt)</a>
+      </article>
+    </section>
+
+    <section class="editor" aria-label="Editor für URLs">
+      <strong>URLs einfügen (optional)</strong>
+      <p class="small">Hier kannst du später die echten Projekt‑URLs einfügen. Die Seite speichert sie lokal im Browser (localStorage) — perfekt, um die Index‑Seite vor dem Push zu testen.</p>
+
+      <label for="u1">Password‑Smiley‑Checker</label>
+      <input id="u1" type="text" placeholder="https://..." />
+
+      <label for="u2">Phishing‑Test</label>
+      <input id="u2" type="text" placeholder="https://..." />
+
+      <label for="u3">CheckMyEMail</label>
+      <input id="u3" type="text" placeholder="https://..." />
+
+      <label for="u4">WhereDoILive</label>
+      <input id="u4" type="text" placeholder="https://..." />
+
+      <div class="actions">
+        <button id="save" class="ghost">Speichern (lokal)</button>
+        <button id="apply" class="btn">Apply & Öffnen</button>
+        <button id="reset" class="ghost">Zurücksetzen</button>
+      </div>
+      <div class="meta">
+        <div class="small">Hinweis: Wenn du die Seite zu Vercel hochlädst, kannst du die URLs entweder hier eintragen (nur lokal) oder direkt im Code ersetzen.</div>
+      </div>
+    </section>
+
+    <footer>
+      <small>Erstellt für das IT‑Girls Camp — Stand: lokale Demo. Wenn du willst, trage mir die endgültigen URLs ein und ich aktualisiere die Datei für dich.</small>
+    </footer>
+  </main>
+
+<script>
+  // Projekt-IDs
+  const ids = ['u1','u2','u3','u4'];
+  const links = ['link-1','link-2','link-3','link-4'];
+
+  // Lade gespeicherte URLs
+  function load(){
+    ids.forEach((id,i)=>{
+      const el = document.getElementById(id);
+      const saved = localStorage.getItem('itgirls_'+id);
+      if(saved) el.value = saved;
+      // apply to link
+      const l = document.getElementById(links[i]);
+      if(saved) { l.href = saved; l.textContent = 'Öffnen'; }
+      else { l.href = '#'; l.textContent = 'Öffnen (URL fehlt)'; }
+    });
+  }
+
+  document.getElementById('save').addEventListener('click', ()=>{
+    ids.forEach((id)=>{
+      const v = document.getElementById(id).value.trim();
+      if(v) localStorage.setItem('itgirls_'+id, v);
+      else localStorage.removeItem('itgirls_'+id);
+    });
+    load();
+    alert('URLs lokal gespeichert.');
+  });
+
+  document.getElementById('apply').addEventListener('click', ()=>{
+    ids.forEach((id,i)=>{
+      const v = document.getElementById(id).value.trim();
+      const a = document.getElementById(links[i]);
+      if(v){ a.href = v; a.textContent = 'Öffnen'; window.open(v,'_blank'); }
+      else { a.href = '#'; a.textContent = 'Öffnen (URL fehlt)'; }
+    });
+  });
+
+  document.getElementById('reset').addEventListener('click', ()=>{
+    if(!confirm('Alle lokal gespeicherten URLs entfernen?')) return;
+    ids.forEach((id,i)=>{ document.getElementById(id).value = ''; localStorage.removeItem('itgirls_'+id); const a = document.getElementById(links[i]); a.href = '#'; a.textContent = 'Öffnen (URL fehlt)'; });
+  });
+
+  // Initial load
+  load();
+</script>
+</body>
+</html>
