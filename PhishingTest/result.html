@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Phishing-Demo: Ergebnis</title>
+<style>
+  body{ font-family: "Segoe UI", Roboto, Arial, sans-serif; margin:0; padding:32px; background:#f6f6f6; color:#111; }
+  .wrap{ max-width:820px; margin:20px auto; background:#fff; padding:22px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.08); }
+  h1{ margin-top:0; font-size:20px; }
+  .alert{ background:#ffefef; border-left:6px solid #d9534f; padding:12px 14px; border-radius:6px; margin-bottom:18px; }
+  .result{ background:#f3f9f3; border-left:6px solid #2e7d32; padding:12px 14px; border-radius:6px; margin-bottom:18px; }
+  .kbd{ font-family:monospace; display:inline-block; padding:6px 8px; background:#fff; border-radius:4px; box-shadow:inset 0 -1px 0 rgba(0,0,0,0.03); }
+  .explain{ margin-top:12px; line-height:1.5; }
+  .btn {
+    display:inline-block; margin-top:16px;
+    padding:10px 14px; background:#0b66a3; color:#fff; border-radius:6px; text-decoration:none;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <h1>Ergebnis der Phishing-Demo</h1>
+
+    <div class="alert">
+      <strong>Wichtig:</strong> Du befindest dich in einer Schul-Übung. Diese Seite läuft lokal und sendet keine Daten über das Netzwerk.
+      Der folgende Bereich zeigt die Werte, die gerade eingegeben wurden.
+    </div>
+
+    <div class="result" id="resultBox">
+      <div><strong>Benutzerkennung:</strong> <span id="showUser" class="kbd">—</span></div>
+      <div style="margin-top:8px"><strong>Passwort:</strong> <span id="showPw" class="kbd">—</span></div>
+    </div>
+
+    <div class="explain">
+      <p>Erklärung / Lehrhinweis:</p>
+      <ul>
+        <li>Die Demo zeigt, wie eine offensichtliche Kopie einer Login-Seite zur Eingabe verleiten kann.</li>
+        <li>Im echten Leben senden Phishing-Seiten Daten an Angreifer; diese Demo speichert nur temporär im <code>sessionStorage</code>.</li>
+        <li>Wichtig für den Unterricht: Lehre, wie man legitime URLs, HTTPS, und Absender prüft und dass man niemals Passwörter in unsicheren Formularen eingibt.</li>
+      </ul>
+    </div>
+
+    <a class="btn" href="index.html">Zurück zur Demo</a>
+    <button class="btn" style="background:#666;margin-left:12px" onclick="clearSession()">Session löschen</button>
+  </div>
+
+<script>
+  // Werte aus sessionStorage lesen
+  const u = sessionStorage.getItem('phish_demo_user') || '—';
+  const p = sessionStorage.getItem('phish_demo_pw')  || '—';
+  document.getElementById('showUser').textContent = u;
+  document.getElementById('showPw').textContent   = p;
+
+  function clearSession(){
+    sessionStorage.removeItem('phish_demo_user');
+    sessionStorage.removeItem('phish_demo_pw');
+    sessionStorage.removeItem('phish_demo_isTraining');
+    // refresh anzeigen
+    document.getElementById('showUser').textContent = '—';
+    document.getElementById('showPw').textContent = '—';
+    alert('Session lokal gelöscht.');
+  }
+</script>
+</body>
+</html>
