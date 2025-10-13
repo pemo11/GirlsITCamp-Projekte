@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Mail-Sicherheit – Prüfen & Schützen</title>
+  <style>
+    body {
+      font-family: system-ui, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      color: #222;
+      margin: 0;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      color: #003366;
+    }
+    a {
+      color: #0055cc;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .button {
+      display: inline-block;
+      background: #0055cc;
+      color: white;
+      padding: 0.7rem 1.2rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+    }
+    .button:hover {
+      background: #0040a3;
+    }
+    footer {
+      font-size: 0.9rem;
+      color: #666;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>E-Mail-Sicherheit: Wurde deine Adresse schon einmal gestohlen?</h1>
+
+  <div class="card">
+    <h2>Warum das wichtig ist</h2>
+    <p>
+      Bei vielen Online-Diensten (z.&nbsp;B. Spiele, Shops, soziale Netzwerke) können durch Datenlecks
+      Millionen von E-Mail-Adressen und Passwörtern in falsche Hände geraten.
+      Diese sogenannten <strong>„Leaks“</strong> werden oft im Internet weiterverkauft.
+    </p>
+    <p>
+      Wenn deine Adresse betroffen ist, können Angreifer versuchen, sich mit den alten Daten in andere
+      Konten einzuloggen oder dich mit Phishing-Mails hereinzulegen.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>So kannst du deine E-Mail-Adresse prüfen</h2>
+    <p>
+      Der kostenlose Dienst <strong>Mozilla Monitor</strong> überprüft,
+      ob deine E-Mail-Adresse in bekannten Datenlecks aufgetaucht ist.
+      Er verwendet dafür die gleiche sichere Datenbank wie „Have I Been Pwned“.
+    </p>
+    <a class="button" href="https://monitor.mozilla.org" target="_blank">
+      🔍 Jetzt E-Mail prüfen auf Mozilla Monitor
+    </a>
+  </div>
+
+  <div class="card">
+    <h2>Extra-Schutz: Firefox Relay</h2>
+    <p>
+      Mit <strong>Firefox Relay</strong> kannst du sogenannte <em>Masken-Adressen</em> verwenden.
+      Das sind Ersatz-E-Mails wie <code>abc123@relay.firefox.com</code>, die Nachrichten an dein echtes Postfach weiterleiten.
+      So bleibt deine <strong>echte E-Mail-Adresse geheim</strong>.
+    </p>
+    <p>
+      Wenn eine dieser Masken in einem Leak auftaucht, kannst du sie einfach löschen –
+      ohne deine Hauptadresse zu gefährden.
+    </p>
+    <a class="button" href="https://relay.firefox.com" target="_blank">
+      🛡️ Mehr erfahren über Firefox Relay
+    </a>
+  </div>
+
+  <footer>
+    <p>Diese Seite ist eine Unterrichtsdemonstration zum Thema Datenschutz und IT-Sicherheit.</p>
+  </footer>
+
+</body>
+</html>

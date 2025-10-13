@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Standort über IP</title>
+<style>
+body {
+  font-family: Verdana, sans-serif;
+  max-width: 600px;
+  margin: 40px auto;
+  line-height: 1.6;
+}
+h1 { color: #336699; }
+#info { background: #eef; padding: 1em; border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Standort über IP-Adresse</h1>
+<p>Diese Seite zeigt, welcher Standort anhand deiner öffentlichen IP-Adresse geschätzt wird.</p>
+
+<div id="info">Lade Standortdaten …</div>
+
+<script>
+async function ladeStandort() {
+  try {
+    const response = await fetch("https://ipapi.co/json/");
+    const data = await response.json();
+
+    document.getElementById("info").innerHTML = `
+      <strong>IP-Adresse:</strong> ${data.ip}<br>
+      <strong>Land:</strong> ${data.country_name}<br>
+      <strong>Region:</strong> ${data.region}<br>
+      <strong>Stadt:</strong> ${data.city}<br>
+      <strong>Postleitzahl:</strong> ${data.postal}<br>
+      <strong>Provider:</strong> ${data.org}<br>
+      <strong>Koordinaten:</strong> ${data.latitude}, ${data.longitude}
+    `;
+  } catch (error) {
+    document.getElementById("info").textContent =
+      "Standortdaten konnten nicht geladen werden.";
+  }
+}
+
+ladeStandort();
+</script>
+
+</body>
+</html>

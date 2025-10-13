@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Browser-Infos – Diagnose</title>
+<style>
+  body{font-family:system-ui,Segoe UI,Roboto,Arial;margin:0;background:#0b1220;color:#e6eef8}
+  header{padding:12px 16px;background:#0f172a;position:sticky;top:0}
+  .ok{color:#86efac} .bad{color:#fca5a5} .warn{color:#fde68a}
+  main{padding:16px;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .card{background:#0a1326;border:1px solid #1f2a44;border-radius:10px;padding:12px}
+  pre{background:#081226;border-radius:8px;padding:10px;min-height:60px;overflow:auto}
+  button{background:#7dd3fc;border:0;color:#06223a;padding:8px 12px;border-radius:8px;font-weight:600;cursor:pointer}
+  button.secondary{background:#334155;color:#e6eef8}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<header>
+  <div id="boot" class="warn">Status: Initialisiere…</div>
+  <div id="events" style="opacity:.9;font-size:.95rem"></div>
+</header>
+
+<main>
+  <div class="card">
+    <strong>Aktionen</strong>
+    <div class="row" style="margin-top:8px">
+      <button id="btn-refresh" type="button">Aktualisieren</button>
+      <button id="btn-location" type="button">Standort anzeigen</button>
+    </div>
+    <div style="margin-top:8px" class="warn" id="hint"></div>
+  </div>
+
+  <div class="card">
+    <strong>Navigator</strong>
+    <pre id="navigator">—</pre>
+  </div>
+
+  <div class="card">
+    <strong>Standort</strong>
+    <pre id="location">Noch kein Standort.</pre>
+  </div>
+</main>
+
+<script>
+(function(){
+  const $ = (id)=>document.getElementById(id);
+  const log = (msg)=>{ const d=new Date().toLocaleTimeString(); $('events').innerHTML = `[${d}] `+msg+'<br>'+$('events').innerHTML; };
+  const show = (id, val)=> $(id).textContent = typeof val === 'string' ? val : JSON.stringify(val, null, 2);
+
+  // 1) Boot-Anzeige
+  $('boot').textContent = 'Status: Skript läuft ✓';
+  $('boot').className = 'ok';
+  log('Skript gestartet.');
+  $('hint').textContent = (window.isSecureContext || location.hostname.match(/^(localhost|127\.0\.0\.1|.*\.local)$/))
+    ? 'Sicherer Kontext/localhost erkannt – APIs sollten funktionieren.'
+    : 'Achtung: Nicht HTTPS/localhost – Geolocation/Permissions können blockiert sein.';
+
+  // 2) Events robust registrieren (sowohl addEventListener als Fallback über onclick)
+  function onRefresh(){
+    log('Klick: Aktualisieren');
+    try{
+      const nav = {
+        userAgent: navigator.userAgent || 'n/a',
+        platform: navigator.platform || 'n/a',
+        languages: navigator.languages?.join(', ') || navigator.language || 'n/a',
+        vendor: navigator.vendor || '',
+        hardwareConcurrency: navigator.hardwareConcurrency ?? 'n/a',
+        deviceMemory: navigator.deviceMemory ?? 'n/a'
+      };
+      show('navigator', nav);
+      log('Navigator-Daten aktualisiert.');
+    }catch(e){
+      show('navigator','Fehler: '+e.message);
+      log('Fehler bei Navigator: '+e.message);
+    }
+  }
+
+  function onLocation(){
+    log('Klick: Standort anzeigen');
+    if (!navigator.geolocation){
+      show('location','Geolocation API nicht verfügbar.');
+      log('Geolocation nicht verfügbar.');
+      return;
+    }
+    if (!(window.isSecureContext || location.hostname.match(/^(localhost|127\.0\.0\.1|.*\.local)$/))){
+      show('location','Geolocation blockiert (kein HTTPS/localhost).');
+      log('Blockiert: unsicherer Kontext.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        const p = {lat: pos.coords.latitude, lon: pos.coords.longitude, accuracy: Math.round(pos.coords.accuracy)+' m', time: new Date(pos.timestamp).toString()};
+        show('location', p);
+        log('Standort empfangen.');
+      },
+      err=>{
+        show('location','Fehler: '+err.message+' (Code '+err.code+')');
+        log('Geolocation-Fehler: '+err.message+' (Code '+err.code+')');
+      },
+      {enableHighAccuracy:false, timeout:10000, maximumAge:30000}
+    );
+  }
+
+  const btnR = $('btn-refresh');
+  const btnL = $('btn-location');
+
+  // Prüfen, ob Buttons existieren
+  if (!btnR || !btnL){
+    $('boot').textContent = 'Status: Buttons nicht gefunden ✗';
+    $('boot').className = 'bad';
+    log('FEHLER: Button-IDs nicht im DOM.');
+    return;
+  }
+
+  // Event-Bindings
+  btnR.addEventListener('click', onRefresh, {passive:true});
+  btnL.addEventListener('click', onLocation, {passive:true});
+  // Fallback (für sehr alte Umgebungen)
+  btnR.onclick = btnR.onclick || onRefresh;
+  btnL.onclick = btnL.onclick || onLocation;
+
+  // 3) Erster Refresh automatisch (damit man sofort was sieht)
+  onRefresh();
+})();
+</script>
+</body>
+</html>
