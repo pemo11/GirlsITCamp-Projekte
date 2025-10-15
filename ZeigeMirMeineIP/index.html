@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Wo bin ich? – IP & Karte (Schuldemo)</title>
+
+  <!-- Leaflet (Karte) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+    defer
+  ></script>
+
+  <style>
+    :root { --bg:#0b1020; --card:#121a33; --text:#eef3ff; --muted:#9bb0ff; --accent:#7aa2ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui,Segoe UI,Roboto,Arial; color:var(--text); background:linear-gradient(160deg,#0b1020,#0d1430 60%,#0b1020); }
+    header { padding: 18px 20px; border-bottom: 1px solid #223; background: rgba(0,0,0,0.3); position: sticky; top:0; backdrop-filter: blur(6px); }
+    h1 { margin:0; font-size: 20px; letter-spacing:.3px; }
+    main { max-width: 980px; margin: 16px auto; padding: 0 16px 28px; }
+    .grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
+    @media (min-width:900px){ .grid { grid-template-columns: 380px 1fr; } }
+    .card { background: var(--card); border: 1px solid #223; border-radius: 14px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+    .kpi { display:grid; grid-template-columns: 1fr; gap:10px; }
+    .row { display:flex; gap:10px; align-items:center; }
+    .label { color: var(--muted); font-size: 13px; }
+    .value { font-weight: 600; font-size: 16px; word-break: break-all; }
+    .btn { appearance:none; border:1px solid #2a3a6a; background:#142354; color:white; padding:10px 12px; border-radius:10px; cursor:pointer; font-weight:600; }
+    .btn:hover { filter: brightness(1.1); }
+    #map { width:100%; height: 520px; border-radius: 14px; border:1px solid #223; overflow:hidden; }
+    .hint { font-size: 13px; color: var(--muted); }
+    .pill { display:inline-block; padding:2px 8px; border-radius:999px; border:1px solid #2a3a6a; font-size:12px; color:#cfe1ff; }
+    .ok { color:#8ff79b; }
+    .warn { color:#ffd37e; }
+    .err { color:#ff8f8f; }
+    footer { margin-top: 14px; font-size: 12px; color: var(--muted); }
+    code { background:#0c1430; padding:2px 6px; border-radius:6px; border:1px solid #223; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌍 Wo bin ich? – IP-Adresse, grobe IP-Location & Karte</h1>
+  </header>
+
+  <main class="grid">
+    <!-- Info-Karte -->
+    <section class="card">
+      <h2 style="margin:6px 0 10px 0;">Deine Verbindungs-Infos</h2>
+      <div class="kpi">
+        <div>
+          <div class="label">IP-Adresse</div>
+          <div class="value" id="ip">…</div>
+        </div>
+        <div class="row">
+          <div>
+            <div class="label">Region laut IP (ungefähr)</div>
+            <div class="value" id="city">…</div>
+            <div class="hint" id="asn">…</div>
+          </div>
+          <span class="pill" id="source">IP-Geolocation</span>
+        </div>
+        <div class="row" style="gap:8px; flex-wrap:wrap; margin-top:6px;">
+          <button class="btn" id="btn-ip">🔁 IP-Standort neu laden</button>
+          <button class="btn" id="btn-gps">📍 Genauere Position (Browser-Freigabe)</button>
+          <span id="status" class="hint"></span>
+        </div>
+        <p class="hint" style="margin-top:10px;">
+          🔒 <b>Datenschutz:</b> IP-Standort ist nur <b>ungefähr</b> (Stadt/Region). Browser-Geoposition ist genauer,
+          benötigt aber deine Erlaubnis. Nichts wird gespeichert – das ist nur eine lokale Demo.
+        </p>
+      </div>
+      <footer>
+        Tipp für den Unterricht: Vergleicht die Punkte <b>IP</b> vs. <b>Browser</b> auf der Karte.
+        Warum ist IP oft ungenau? (Provider-Knoten, Schul-Gateway, VPN, …)
+      </footer>
+    </section>
+
+    <!-- Karte -->
+    <section class="card" style="padding:10px;">
+      <div id="map" aria-label="Karte mit Standort"></div>
+    </section>
+  </main>
+
+  <script>
+    // --- Hilfen ---
+    const $ = (id) => document.getElementById(id);
+    const ipEl = $("ip"), cityEl = $("city"), asnEl = $("asn"), statusEl = $("status"), sourceEl = $("source");
+
+    // --- Karte vorbereiten ---
+    let map, ipMarker, gpsMarker, accuracyCircle;
+    function initMap() {
+      map = L.map('map', { zoomControl: true, attributionControl: true }).setView([51.1657, 10.4515], 5); // Deutschland
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap-Mitwirkende'
+      }).addTo(map);
+    }
+
+    function setMapPoint(lat, lon, label, isGPS=false, accuracyMeters=null) {
+      const pos = [lat, lon];
+
+      // Marker verwalten
+      if (isGPS) {
+        if (gpsMarker) { gpsMarker.setLatLng(pos).setPopupContent(label); }
+        else { gpsMarker = L.marker(pos, { title:"Browser-Geoposition" }).addTo(map).bindPopup(label); }
+        gpsMarker.openPopup();
+      } else {
+        if (ipMarker) { ipMarker.setLatLng(pos).setPopupContent(label); }
+        else { ipMarker = L.marker(pos, { title:"IP-Position (ungefähr)" }).addTo(map).bindPopup(label); }
+        ipMarker.openPopup();
+      }
+
+      // Genauigkeitskreis für GPS
+      if (accuracyCircle) { map.removeLayer(accuracyCircle); accuracyCircle = null; }
+      if (isGPS && typeof accuracyMeters === "number") {
+        accuracyCircle = L.circle(pos, { radius: accuracyMeters }).addTo(map);
+      }
+
+      // Karte passend zoomen
+      const group = L.featureGroup([].concat(ipMarker || [], gpsMarker || [], accuracyCircle || []));
+      map.fitBounds(group.getBounds().pad(0.3));
+    }
+
+    // --- IP + IP-Geolocation ---
+    async function fetchIP() {
+      // ipify: nur IP
+      const r = await fetch("https://api.ipify.org?format=json");
+      if (!r.ok) throw new Error("IP konnte nicht geladen werden.");
+      const data = await r.json();
+      return data.ip;
+    }
+
+    async function fetchIPGeo() {
+      // Primär: ipapi.co (ohne Key), Fallback: ipwho.is
+      try {
+        const r = await fetch("https://ipapi.co/json/");
+        if (r.ok) {
+          const d = await r.json();
+          if (d && d.latitude && d.longitude) {
+            return {
+              lat: d.latitude, lon: d.longitude,
+              city: [d.city, d.region, d.country_name].filter(Boolean).join(", "),
+              asn: d.org || d.asn || "",
+              source: "IP-Geolocation (ipapi.co)"
+            };
+          }
+        }
+        throw new Error("ipapi.co ohne Koordinaten");
+      } catch {
+        const r2 = await fetch("https://ipwho.is/");
+        if (!r2.ok) throw new Error("ipwho.is nicht erreichbar");
+        const d2 = await r2.json();
+        if (!d2.success) throw new Error("ipwho.is ohne Erfolg");
+        return {
+          lat: d2.latitude, lon: d2.longitude,
+          city: [d2.city, d2.region, d2.country].filter(Boolean).join(", "),
+          asn: (d2.connection && (d2.connection.org || d2.connection.isp)) || "",
+          source: "IP-Geolocation (ipwho.is)"
+        };
+      }
+    }
+
+    async function loadIPBlock() {
+      try {
+        statusEl.textContent = "Lade IP…";
+        const ip = await fetchIP();
+        ipEl.textContent = ip;
+        statusEl.textContent = "Lade ungefähren Standort über IP…";
+        const geo = await fetchIPGeo();
+        cityEl.textContent = geo.city || "–";
+        asnEl.textContent = geo.asn ? `Netzbetreiber: ${geo.asn}` : "Netzbetreiber: –";
+        sourceEl.textContent = geo.source;
+        setMapPoint(geo.lat, geo.lon, `📮 IP-Position (ungefähr):<br><b>${geo.city || "Unbekannt"}</b>`);
+        statusEl.innerHTML = "<span class='ok'>✓</span> IP-Daten geladen";
+      } catch (e) {
+        statusEl.innerHTML = "<span class='err'>✗</span> Konnte IP/Standort nicht laden. (Schulnetz/VPN/Adblock?)";
+        console.error(e);
+      }
+    }
+
+    // --- Browser-Geoposition (genauer, mit Erlaubnis) ---
+    function requestBrowserGeo() {
+      if (!("geolocation" in navigator)) {
+        statusEl.innerHTML = "<span class='err'>✗</span> Dein Browser unterstützt Geoposition nicht.";
+        return;
+      }
+      statusEl.textContent = "Frage Browser-Geoposition an…";
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude, accuracy } = pos.coords;
+          setMapPoint(latitude, longitude, `📍 Browser-Geoposition:<br><b>${latitude.toFixed(5)}, ${longitude.toFixed(5)}</b><br>± ${Math.round(accuracy)} m`, true, accuracy);
+          sourceEl.textContent = "Browser-Geoposition";
+          statusEl.innerHTML = "<span class='ok'>✓</span> Geoposition geladen";
+        },
+        (err) => {
+          let msg = "Geoposition nicht verfügbar.";
+          if (err.code === 1) msg = "Zugriff verweigert (Bitte Berechtigung erteilen).";
+          if (err.code === 2) msg = "Position kann nicht ermittelt werden (Netz/Signal?).";
+          if (err.code === 3) msg = "Zeitüberschreitung.";
+          statusEl.innerHTML = `<span class='warn'>!</span> ${msg}`;
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    // --- Init ---
+    window.addEventListener("DOMContentLoaded", () => {
+      initMap();
+      loadIPBlock();
+      $("btn-ip").addEventListener("click", loadIPBlock);
+      $("btn-gps").addEventListener("click", requestBrowserGeo);
+    });
+  </script>
+</body>
+</html>

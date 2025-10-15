@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>MFA-Demo für die 6. Klasse</title>
+<style>
+  :root { --bg:#0b1020; --card:#141c3a; --txt:#f4f6ff; --muted:#c8d0ff; --ok:#3ddc84; --warn:#ffd166; --err:#ff6b6b; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Color Emoji", sans-serif;
+    background: linear-gradient(180deg,#0b1020 0%, #0e1630 100%); color: var(--txt);
+  }
+  header {
+    padding: 20px 16px; text-align: center; border-bottom: 1px solid #223;
+  }
+  header h1 { margin: 0; font-size: clamp(22px,4vw,34px); }
+  header p  { margin: 8px 0 0; color: var(--muted); font-size: clamp(14px,2.4vw,16px); }
+  .wrap {
+    max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 16px;
+    grid-template-columns: 1fr; 
+  }
+  @media (min-width: 900px){ .wrap { grid-template-columns: 2fr 1fr; } }
+  .card {
+    background: var(--card); border: 1px solid #253055; border-radius: 16px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  }
+  .card h2 { margin-top: 0; font-size: clamp(18px,3vw,22px); }
+  label { display:block; margin: 10px 0 6px; font-weight: 600; }
+  input, select, button {
+    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #34406d; background:#0f1530; color: var(--txt);
+    font-size: 16px;
+  }
+  input::placeholder { color: #94a3ff; opacity: .75; }
+  button {
+    background: #2b3b7a; cursor: pointer; transition: transform .05s ease, filter .1s ease;
+    font-weight: 700; letter-spacing:.2px;
+  }
+  button:hover { filter: brightness(1.05); }
+  button:active { transform: translateY(1px); }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .hint {
+    background: #0e1533; border: 1px dashed #3b4c96; padding: 10px 12px; border-radius: 12px; color: var(--muted);
+    font-size: 14px; margin-top: 10px;
+  }
+  .ok { color: var(--ok); font-weight: 700; }
+  .warn { color: var(--warn); font-weight: 700; }
+  .err { color: var(--err); font-weight: 700; }
+  .badge {
+    display:inline-block; padding: 6px 10px; border-radius: 999px; background:#1a2550; border:1px solid #2a3a7d; color: var(--muted);
+    font-size: 12px; margin-left: 8px;
+  }
+  .status {
+    margin-top: 12px; border-top: 1px solid #2a355f; padding-top: 10px; min-height: 26px;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .inline { display:flex; align-items:center; gap:10px; }
+  .toggle { display:flex; align-items:center; gap:8px; margin: 8px 0; }
+  .phone {
+    background: #0a1126; border: 2px solid #2b3b7a; border-radius: 24px; padding: 14px; height: 260px; position: relative;
+  }
+  .phone::after {
+    content: ""; position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 70px; height: 6px; background: #223060; border-radius: 999px;
+  }
+  .sms {
+    margin-top: 30px; background: #10204a; border: 1px solid #2b3b7a; padding: 12px; border-radius: 12px;
+  }
+  .sms h3 { margin: 0 0 6px; font-size: 14px; color: var(--muted); font-weight: 600; }
+  .sms .code { font-size: 28px; font-weight: 800; letter-spacing: 4px; }
+  .timer { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  .pill { display:inline-block; padding: 4px 8px; border:1px solid #3b4c96; border-radius:999px; font-size:12px; color:#cbd5ff; }
+  .footer { text-align:center; color:#9fb3ff; font-size: 14px; padding: 18px; }
+  .edu li { margin: 8px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🔐 MFA – Mehrfaktor-Authentifizierung (zum Anfassen)</h1>
+  <p>Erst Passwort (Faktor 1), dann Einmalcode (Faktor 2). Zwei Beweise sind besser als einer.</p>
+</header>
+
+<main class="wrap">
+  <!-- Linke Spalte: Interaktive MFA -->
+  <section class="card" aria-labelledby="mfa-title">
+    <h2 id="mfa-title">1) Anmelden (Faktor 1: Passwort)</h2>
+
+    <div class="hint">
+      <strong>Demo-Zugang:</strong> Benutzername <code>lena</code>, Passwort <code>erdbeere</code>.
+      <span class="badge">Nur für Unterricht</span>
+    </div>
+
+    <label for="user">Benutzername</label>
+    <input id="user" name="user" placeholder="z. B. lena" autocomplete="off" />
+
+    <label for="pw">Passwort</label>
+    <input id="pw" name="pw" type="password" placeholder="z. B. erdbeere" autocomplete="off" />
+
+    <div class="btn-row">
+      <button id="btnLogin">Einloggen</button>
+      <button id="btnReset" title="Alles zurücksetzen">Zurücksetzen</button>
+    </div>
+
+    <div class="toggle">
+      <input type="checkbox" id="hacker" />
+      <label for="hacker">Hacker-Modus: „Ich kenne das Passwort“ (zeige, warum das nicht reicht)</label>
+    </div>
+
+    <div class="status" id="status1" aria-live="polite"></div>
+
+    <hr style="border-color:#28355f; margin:16px 0">
+
+    <h2>2) Zweiter Faktor: Einmalcode</h2>
+
+    <div class="grid-2">
+      <div>
+        <label for="method">Wie soll der Code kommen?</label>
+        <select id="method">
+          <option value="app">App-Code (z. B. Authenticator)</option>
+          <option value="sms">Code per SMS/E-Mail</option>
+        </select>
+        <div class="btn-row">
+          <button id="btnSend" disabled>Code anfordern</button>
+          <button id="btnReveal" disabled>Code anzeigen (Demo)</button>
+        </div>
+
+        <label for="code">Einmalcode eingeben</label>
+        <input id="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="6-stelliger Code" disabled />
+
+        <button id="btnVerify" style="margin-top:10px" disabled>Bestätigen</button>
+        <div class="status" id="status2" aria-live="polite"></div>
+      </div>
+
+      <div>
+        <div class="phone" aria-label="Simuliertes Handy">
+          <div class="sms" id="smsBox" hidden>
+            <h3>Neue Nachricht</h3>
+            <div>Dein Einmalcode lautet:</div>
+            <div class="code" id="smsCode">------</div>
+            <div class="timer" id="timerTxt">Gültig: 30 Sekunden</div>
+            <div style="margin-top:8px">
+              <span class="pill" id="methodPill">Methode: —</span>
+            </div>
+          </div>
+          <div class="sms" id="lockedMsg" hidden>
+            <h3>Ohne Code kein Zutritt</h3>
+            <div class="err">Ein Passwort allein reicht nicht.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hint">
+      <strong>Merksatz:</strong> <span class="ok">Ein Passwort ist gut – zwei Beweise sind besser!</span>
+    </div>
+  </section>
+
+  <!-- Rechte Spalte: Erklärung & Lehrer-Notizen -->
+  <aside class="card">
+    <h2>Was passiert hier?</h2>
+    <ul class="edu">
+      <li><strong>Faktor 1:</strong> Etwas, das du <em>weißt</em> – dein Passwort.</li>
+      <li><strong>Faktor 2:</strong> Etwas, das du <em>hast</em> (Handy/Code) oder <em>bist</em> (Finger/Face).</li>
+      <li><strong>Warum?</strong> Wenn jemand dein Passwort stiehlt, fehlt ihm immer noch der zweite Faktor.</li>
+    </ul>
+    <h3>Kurzaktivität</h3>
+    <ol>
+      <li>Schaltet den <em>Hacker-Modus</em> ein.</li>
+      <li>Loggt euch mit dem richtigen Passwort ein.</li>
+      <li>Versucht ohne Einmalcode reinzukommen – es klappt nicht.</li>
+      <li>Erst mit Code wird der Zugang gewährt.</li>
+    </ol>
+    <div class="hint">
+      Tipp: Lasst den Code absichtlich ablaufen und besprecht, warum Einmalcodes nur kurz gültig sind.
+    </div>
+  </aside>
+</main>
+
+<div class="footer">© Klasse 6 – MFA zum Ausprobieren • Keine echten Zugangsdaten verwenden.</div>
+
+<script>
+(() => {
+  const DEMO_USER = "lena";
+  const DEMO_PW   = "erdbeere";
+
+  const el = (id) => document.getElementById(id);
+
+  const user     = el("user");
+  const pw       = el("pw");
+  const btnLogin = el("btnLogin");
+  const btnReset = el("btnReset");
+  const status1  = el("status1");
+
+  const hacker   = el("hacker");
+  const method   = el("method");
+  const btnSend  = el("btnSend");
+  const btnReveal= el("btnReveal");
+  const codeIn   = el("code");
+  const btnVerify= el("btnVerify");
+  const status2  = el("status2");
+
+  const smsBox   = el("smsBox");
+  const smsCode  = el("smsCode");
+  const timerTxt = el("timerTxt");
+  const methodPill = el("methodPill");
+  const lockedMsg  = el("lockedMsg");
+
+  let loggedInStage1 = false;
+  let currentCode = null;
+  let expiryAt = 0;
+  let timerHandle = null;
+
+  function resetAll() {
+    loggedInStage1 = false;
+    currentCode = null;
+    expiryAt = 0;
+    clearInterval(timerHandle);
+    user.value = "";
+    pw.value = "";
+    codeIn.value = "";
+    status1.textContent = "";
+    status2.textContent = "";
+    btnSend.disabled = true;
+    btnReveal.disabled = true;
+    codeIn.disabled = true;
+    btnVerify.disabled = true;
+    smsBox.hidden = true;
+    lockedMsg.hidden = true;
+    smsCode.textContent = "------";
+    timerTxt.textContent = "Gültig: 30 Sekunden";
+    methodPill.textContent = "Methode: —";
+    method.value = "app";
+    hacker.checked = false;
+  }
+
+  function startTimer(seconds = 30) {
+    clearInterval(timerHandle);
+    const tick = () => {
+      const now = Date.now();
+      const remain = Math.max(0, Math.floor((expiryAt - now) / 1000));
+      timerTxt.textContent = remain > 0
+        ? `Gültig noch: ${remain} Sek.`
+        : "Abgelaufen – neuen Code anfordern";
+      if (remain <= 0) {
+        clearInterval(timerHandle);
+      }
+    };
+    timerHandle = setInterval(tick, 250);
+    tick();
+  }
+
+  function generateCode() {
+    // 6-stellig, führende Nullen erlaubt
+    return Math.floor(Math.random() * 1_000_000).toString().padStart(6, "0");
+  }
+
+  function loginStage1() {
+    const u = user.value.trim().toLowerCase();
+    const p = pw.value;
+
+    if (!u || !p) {
+      status1.innerHTML = `<span class="warn">Bitte Benutzername und Passwort eingeben.</span>`;
+      return;
+    }
+    if (u === DEMO_USER && p === DEMO_PW) {
+      loggedInStage1 = true;
+      status1.innerHTML = `<span class="ok">Passwort korrekt. Faktor 1 ✅ – jetzt Einmalcode anfordern.</span>`;
+      btnSend.disabled = false;
+      btnReveal.disabled = false; // Demo
+      codeIn.disabled = true;
+      btnVerify.disabled = true;
+      lockedMsg.hidden = !hacker.checked;
+    } else {
+      loggedInStage1 = false;
+      status1.innerHTML = `<span class="err">Benutzername oder Passwort falsch.</span>`;
+      btnSend.disabled = true;
+      btnReveal.disabled = true;
+      codeIn.disabled = true;
+      btnVerify.disabled = true;
+      lockedMsg.hidden = true;
+    }
+  }
+
+  function sendCode() {
+    if (!loggedInStage1) {
+      status2.innerHTML = `<span class="warn">Erst mit Passwort einloggen.</span>`;
+      return;
+    }
+    currentCode = generateCode();
+    expiryAt = Date.now() + 30_000; // 30 Sekunden
+    smsBox.hidden = false;
+    smsCode.textContent = "••••••"; // nicht anzeigen
+    methodPill.textContent = "Methode: " + (method.value === "app" ? "App" : "SMS/E-Mail");
+    codeIn.disabled = false;
+    btnVerify.disabled = false;
+    status2.textContent = "Einmalcode gesendet. Bitte eingeben.";
+    startTimer(30);
+  }
+
+  function revealCode() {
+    // Nur zur Unterrichtsdemonstration
+    if (!currentCode) {
+      status2.innerHTML = `<span class="warn">Bitte zuerst Code anfordern.</span>`;
+      return;
+    }
+    smsCode.textContent = currentCode;
+  }
+
+  function verifyCode() {
+    if (!currentCode) {
+      status2.innerHTML = `<span class="warn">Bitte zuerst Code anfordern.</span>`;
+      return;
+    }
+    const now = Date.now();
+    if (now > expiryAt) {
+      status2.innerHTML = `<span class="err">Code abgelaufen. Bitte neuen Code anfordern.</span>`;
+      return;
+    }
+    const entered = codeIn.value.trim();
+    if (entered === currentCode) {
+      status2.innerHTML = `<span class="ok">Faktor 2 korrekt ✅ – Zugang gewährt! Willkommen, ${DEMO_USER}.</span>`;
+      // Alles sperren
+      codeIn.disabled = true;
+      btnVerify.disabled = true;
+      btnSend.disabled = true;
+      btnReveal.disabled = true;
+      lockedMsg.hidden = true;
+      clearInterval(timerHandle);
+      timerTxt.textContent = "Verifiziert ✔";
+    } else {
+      status2.innerHTML = `<span class="err">Code falsch. Versuche es erneut.</span>`;
+    }
+  }
+
+  btnLogin.addEventListener("click", loginStage1);
+  btnReset.addEventListener("click", resetAll);
+  btnSend.addEventListener("click", sendCode);
+  btnReveal.addEventListener("click", revealCode);
+  btnVerify.addEventListener("click", verifyCode);
+  hacker.addEventListener("change", () => {
+    if (loggedInStage1) lockedMsg.hidden = !hacker.checked;
+  });
+
+  // Schnellstart: Felder vorfüllen für Klasse
+  user.value = DEMO_USER;
+  pw.value = "";
+})();
+</script>
+</body>
+</html>

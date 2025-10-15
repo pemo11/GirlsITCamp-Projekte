@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Passwörter merken mit Eselsbrücke (Satz-Methode)</title>
+  <style>
+    :root { --bg:#0f172a; --card:#111827; --ink:#e5e7eb; --muted:#9ca3af; --accent:#22c55e; --warn:#f59e0b; --bad:#ef4444; }
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif;line-height:1.35}
+    .wrap{max-width:980px;margin:0 auto;padding:24px}
+    h1{font-size:clamp(1.6rem,2.5vw,2.2rem);margin:0 0 8px}
+    h2{font-size:1.2rem;margin:24px 0 8px}
+    p,li{font-size:1.05rem}
+    .grid{display:grid;gap:16px;grid-template-columns:1fr}
+    @media(min-width:900px){.grid{grid-template-columns:1.1fr 1fr}}
+    .card{background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:18px}
+    .steps ol{margin:0;padding-left:20px}
+    .tag{display:inline-block;padding:2px 10px;border-radius:999px;background:#1f2937;color:var(--muted);font-size:.9rem;margin-right:8px}
+    label{display:block;margin:8px 0 6px;font-weight:600}
+    input[type="text"],textarea,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #374151;background:#0b1220;color:var(--ink);font-size:1rem}
+    textarea{min-height:92px;resize:vertical}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    button{border:0;background:#2563eb;color:white;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+    button.ghost{background:#1f2937;color:var(--ink)}
+    .out{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+         background:#0b1220;border:1px dashed #334155;border-radius:12px;padding:12px;word-break:break-all}
+    .bar{height:10px;border-radius:999px;background:#1f2937;overflow:hidden}
+    .bar>span{display:block;height:100%;width:0%}
+    .hint{color:var(--muted);font-size:.95rem}
+    .examples button{margin:4px 6px 0 0}
+    .kicker{font-weight:700;color:#a7f3d0}
+    .small{font-size:.95rem}
+    .okay{background:linear-gradient(90deg,var(--bad),#f97316,var(--warn),var(--accent))}
+    footer{margin-top:28px;color:var(--muted);font-size:.9rem}
+    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#0b1220;border:1px solid #334155;border-radius:6px;padding:0 6px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Passwörter merken mit Eselsbrücke 🧠🔐</h1>
+    <p class="small">
+      <span class="kicker">Satz-Methode:</span> Überlege dir einen Merksatz, nimm die Anfangsbuchstaben (Zahlen und Satzzeichen bleiben),
+      mische Groß/Klein, und hänge ein kurzes Webseiten-Kürzel an. So entstehen starke, merkbare Passwörter.
+    </p>
+
+    <div class="grid">
+      <!-- Regel + Beispiele -->
+      <section class="card steps">
+        <h2>So geht's in 4 Schritten</h2>
+        <ol>
+          <li><b>Merksatz wählen</b> (nur für dich sinnvoll): <i>Heute backe ich 5 Brote, 2 Kuchen und 1 Pizza!</i></li>
+          <li><b>Erste Buchstaben nehmen</b> (Zahlen/Satzzeichen bleiben): <span class="tag">Hbi5B,2Ku1P!</span></li>
+          <li><b>Groß/Klein mischen</b> und optional Buchstaben kreativ ersetzen (e→3, a→@, o→0 …): <span class="tag">HbI5B,2Ku1P!</span></li>
+          <li><b>Webseiten-Kürzel anhängen</b> (z. B. für „schule.de“ <span class="kbd">[sc]</span>): <span class="tag">HbI5B,2Ku1P![sc]</span></li>
+        </ol>
+
+        <h2>Gute Beispiele</h2>
+        <ul>
+          <li><i>Montags trinke ich 2 Tassen Tee um 7:30.</i> → <span class="tag">Mtii2TTu7:30.</span></li>
+          <li><i>Jeden Sommer fahren 4 Freunde nach Sylt!</i> → <span class="tag">Jsf4Fns!</span></li>
+          <li><i>Ich lerne 3 Sprachen: DE, EN und ES.</i> → <span class="tag">Il3S:DE,ENuES.</span></li>
+        </ul>
+
+        <p class="hint">Tipp: Für jede Seite ein eigenes Kürzel, z. B. <span class="kbd">[gh]</span> für GitHub, <span class="kbd">[sc]</span> für Schule.</p>
+      </section>
+
+      <!-- Generator -->
+      <section class="card">
+        <h2>Merksatz → Passwort-Vorschlag</h2>
+
+        <label for="satz">1) Dein Merksatz</label>
+        <textarea id="satz" placeholder="Beispiel: Heute backe ich 5 Brote, 2 Kuchen und 1 Pizza!"></textarea>
+
+        <div class="row">
+          <div style="flex:1 1 220px">
+            <label for="kuerzel">2) Webseiten-Kürzel (optional)</label>
+            <input id="kuerzel" type="text" placeholder="[sc]" />
+          </div>
+          <div style="flex:1 1 220px">
+            <label for="pepper">Zusatz (optional)</label>
+            <input id="pepper" type="text" placeholder="#2025" />
+          </div>
+        </div>
+
+        <div class="row small" style="margin-top:8px">
+          <label class="row" style="gap:6px"><input id="keepPunct" type="checkbox" checked /> Satzzeichen übernehmen</label>
+          <label class="row" style="gap:6px"><input id="leet" type="checkbox" /> Kreativ ersetzen (e→3, a→@, o→0, i→1, s→$)</label>
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <button id="gen">Vorschlagen</button>
+          <button id="copy" class="ghost">Kopieren</button>
+        </div>
+
+        <h2 style="margin-top:18px">Vorschlag</h2>
+        <div id="out" class="out" aria-live="polite"></div>
+
+        <div class="row" style="margin-top:10px;align-items:center">
+          <div class="bar" style="flex:1"><span id="meter" class="okay"></span></div>
+          <div id="meterText" class="small" style="min-width:110px;text-align:right">Stärke: —</div>
+        </div>
+
+        <p class="hint" id="advice" style="margin-top:8px"></p>
+
+        <div class="examples">
+          <p class="small" style="margin-top:10px"><b>Beispiele ausprobieren:</b></p>
+          <button class="ghost" data-example="Heute backe ich 5 Brote, 2 Kuchen und 1 Pizza!">Beispiel 1</button>
+          <button class="ghost" data-example="Jeden Sommer fahren 4 Freunde nach Sylt!">Beispiel 2</button>
+          <button class="ghost" data-example="Ich lerne 3 Sprachen: DE, EN und ES.">Beispiel 3</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2>Wichtige Hinweise</h2>
+      <ul>
+        <li><b>Verwende für jede Seite ein eigenes Passwort</b> (durch das Kürzel).</li>
+        <li><b>Teile deinen Merksatz nicht</b> und schreibe das Passwort nicht offen auf.</li>
+        <li><b>Passwort-Manager</b> sind praktisch, aber die Satz-Methode hilft, sich Notfälle zu merken.</li>
+        <li><b>Mindestens 12 Zeichen</b>, besser mehr, mit Groß/Klein, Zahlen und Sonderzeichen.</li>
+      </ul>
+    </section>
+
+    <footer>
+      © 2025 • Demo für Unterricht „Smart & Safe“ • Satz-Methode = Eselsbrücke
+    </footer>
+  </div>
+
+  <script>
+    const $ = (q)=>document.querySelector(q);
+    const satz = $("#satz"), kuerzel=$("#kuerzel"), pepper=$("#pepper");
+    const keepPunct=$("#keepPunct"), leet=$("#leet");
+    const out=$("#out"), meter=$("#meter"), meterText=$("#meterText"), advice=$("#advice");
+
+    function firstLettersFromSentence(text, keepPunct=true){
+      // Teile in Wörter, behalte Zahlen. Satzzeichen optional beibehalten.
+      // Beispiel: "Heute backe ich 5 Brote, 2 Kuchen und 1 Pizza!"
+      // -> ["Heute","backe","ich","5","Brote,","2","Kuchen","und","1","Pizza!"]
+      const tokens = text.match(/[\p{L}\p{M}]+|\d+|[^\s\p{L}\p{M}\d]/gu) || [];
+      let result = "";
+      for(const t of tokens){
+        if(/^[\p{L}\p{M}]/u.test(t)){        // Wort: nimm ersten Buchstaben, Groß/Klein beibehalten
+          result += t[0];
+        } else if(/^\d+$/.test(t)){          // reine Zahl: vollständig übernehmen
+          result += t;
+        } else if(keepPunct && /[^\s]/.test(t)){ // Satzzeichen: übernehmen
+          result += t;
+        }
+      }
+      return result;
+    }
+
+    function toLeet(s){
+      return s.replace(/a/gi,m=>m===m.toLowerCase()?'@':'@')
+              .replace(/e/gi,'3')
+              .replace(/i/gi,'1')
+              .replace(/o/gi,'0')
+              .replace(/s/gi,'$');
+    }
+
+    function strength(pw){
+      // sehr einfache Heuristik für Demo im Unterricht
+      let score = 0;
+      if(pw.length >= 8) score += 1;
+      if(pw.length >= 12) score += 1;
+      if(/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score += 1;
+      if(/\d/.test(pw)) score += 1;
+      if(/[^\w\s]/.test(pw)) score += 1;
+      // Meter
+      const pct = Math.min(100, score*20);
+      meter.style.width = pct + "%";
+      const labels = ["sehr schwach","schwach","okay","gut","sehr gut","top"];
+      meterText.textContent = "Stärke: " + labels[Math.min(labels.length-1, score)];
+      // Hinweise
+      let tips = [];
+      if(pw.length < 12) tips.push("Länger machen (mind. 12 Zeichen).");
+      if(!(/[A-Z]/.test(pw) && /[a-z]/.test(pw))) tips.push("Groß- und Kleinbuchstaben mischen.");
+      if(!/\d/.test(pw)) tips.push("Zahlen ergänzen.");
+      if(!/[^\w\s]/.test(pw)) tips.push("Sonderzeichen ergänzen.");
+      advice.textContent = tips.length ? "Tipp: " + tips.join(" ") : "Sieht gut aus!";
+    }
+
+    function generate(){
+      const base = firstLettersFromSentence(satz.value.trim(), keepPunct.checked);
+      let candidate = base;
+      if(leet.checked) candidate = toLeet(candidate);
+      const suffix = (pepper.value.trim() || "") + (kuerzel.value.trim() || "");
+      const pw = candidate + suffix;
+      out.textContent = pw || "—";
+      strength(pw);
+    }
+
+    $("#gen").addEventListener("click", generate);
+    $("#copy").addEventListener("click", ()=>{
+      const txt = out.textContent.trim();
+      if(!txt || txt==="—") return;
+      navigator.clipboard.writeText(txt).then(()=>{
+        const old = $("#copy").textContent;
+        $("#copy").textContent = "Kopiert ✓";
+        setTimeout(()=>$("#copy").textContent = old, 900);
+      });
+    });
+
+    document.querySelectorAll(".examples button").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        satz.value = b.dataset.example;
+        kuerzel.value = "[sc]";
+        pepper.value = "";
+        keepPunct.checked = true;
+        leet.checked = false;
+        generate();
+      });
+    });
+
+    // Startwert
+    satz.value = "Heute backe ich 5 Brote, 2 Kuchen und 1 Pizza!";
+    kuerzel.value = "[sc]";
+    generate();
+  </script>
+</body>
+</html>
