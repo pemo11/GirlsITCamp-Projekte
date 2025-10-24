@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>IT Girls Camp – Mail-Login-Hilfe</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>📧 IT Girls Camp – Mail-Login-Hilfe</h1>
+    <p><strong>So meldest du dich an:</strong></p>
+    <ul>
+      <li>1️⃣ ✉️ E-Mail kopieren</li>
+      <li>2️⃣ 🔒 Passwort kopieren</li>
+      <li>3️⃣ 🌐 Webmail öffnen und einfügen</li>
+    </ul>
+
+    <div class="controls">
+      <button id="openWebmail">🌐 Webmail öffnen</button>
+      <span class="hint">Adresse: <code id="webmailUrl"></code></span>
+    </div>
+
+    <section id="list" class="cardlist" aria-live="polite"></section>
+
+    <details class="note">
+      <summary>ℹ️ Hinweis</summary>
+      <p>Diese Seite dient nur zum schnellen Login während des Unterrichts.
+         Die Passwörter liegen im Quelltext und dürfen nicht weitergegeben werden.</p>
+    </details>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
