@@ -1,0 +1,17 @@
+:root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; line-height: 1.5; }
+body { margin: 0; background:#f8f9fb; color:#222; }
+.container { max-width: 880px; margin: 40px auto; padding: 0 16px; }
+h1 { margin-bottom: 8px; color:#2d6cdf; }
+ol { background:#fff; padding:12px 20px; border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.controls { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:18px 0 24px; }
+button { padding:10px 14px; border:0; border-radius:10px; background:#2d6cdf; color:#fff; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.1); font-size:15px; }
+button.secondary { background:#6b7280; }
+button.small { padding:6px 10px; font-size:14px; border-radius:8px; }
+button:active { transform:translateY(1px); }
+.hint code { background:#eef2ff; padding:2px 6px; border-radius:6px; }
+.cardlist { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; }
+.card { background:#fff; border-radius:14px; padding:14px; box-shadow:0 2px 12px rgba(0,0,0,.06); display:flex; flex-direction:column; gap:8px; }
+.row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.email { font-weight:600; }
+.note { margin-top:22px; }
+.copied { font-size:13px; color:#2d6cdf; }
