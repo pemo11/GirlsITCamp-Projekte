@@ -65,90 +65,9 @@
 
     </section>
 
-    <section class="editor" aria-label="Editor für URLs">
-      <strong>URLs einfügen (optional)</strong>
-      <p class="small">Hier kannst du später die echten Projekt‑URLs einfügen. Die Seite speichert sie lokal im Browser (localStorage) — perfekt, um die Index‑Seite vor dem Push zu testen.</p>
-
-      <label for="u1">EMailChecker</label>
-      <input id="u1" type="text" placeholder="EMailChecker/index.html" value="EMailChecker/index.html" />
-
-      <label for="u2">Passwort‑Smiley‑Checker</label>
-      <input id="u2" type="text" placeholder="PasswortChecker/index.html" value="PasswortChecker/index.html" />
-
-      <label for="u3">Passwort‑Merker</label>
-      <input id="u3" type="text" placeholder="PasswortMerker/index.html" value="PasswortMerker/index.html" />
-
-      <label for="u4">Phishing‑Test</label>
-      <input id="u4" type="text" placeholder="PhishingTest/index.html" value="PhishingTest/index.html" />
-
-      <label for="u5">WhereDoILive</label>
-      <input id="u5" type="text" placeholder="WhereDoILive/index.html" value="WhereDoILive/index.html" />
-
-      <label for="u6">WoWohneIchKarte</label>
-      <input id="u6" type="text" placeholder="WoWohneIchKarte/index.html" value="WoWohneIchKarte/index.html" />
-
-      <label for="u7">ZeigeMirMeineIP</label>
-      <input id="u7" type="text" placeholder="ZeigeMirMeineIP/index.html" value="ZeigeMirMeineIP/index.html" />
-
-      <div class="actions">
-        <button id="save" class="ghost">Speichern (lokal)</button>
-        <button id="apply" class="btn">Apply & Öffnen</button>
-        <button id="reset" class="ghost">Zurücksetzen</button>
-      </div>
-      <div class="meta">
-        <div class="small">Hinweis: Wenn du die Seite zu Vercel hochlädst, kannst du die URLs entweder hier eintragen (nur lokal) oder direkt im Code ersetzen.</div>
-      </div>
-    </section>
-
     <footer>
-      <small>Erstellt für das IT‑Girls Camp — Stand: lokale Demo. Wenn du willst, trage mir die endgültigen URLs ein und ich aktualisiere die Datei für dich.</small>
+      <small>Erstellt für das IT‑Girls Camp</small>
     </footer>
   </main>
-
-<script>
-  // Projekt-IDs
-  const ids = ['u1','u2','u3','u4'];
-  const links = ['link-1','link-2','link-3','link-4'];
-
-  // Lade gespeicherte URLs
-  function load(){
-    ids.forEach((id,i)=>{
-      const el = document.getElementById(id);
-      const saved = localStorage.getItem('itgirls_'+id);
-      if(saved) el.value = saved;
-      // apply to link
-      const l = document.getElementById(links[i]);
-      if(saved) { l.href = saved; l.textContent = 'Öffnen'; }
-      else { l.href = '#'; l.textContent = 'Öffnen (URL fehlt)'; }
-    });
-  }
-
-  document.getElementById('save').addEventListener('click', ()=>{
-    ids.forEach((id)=>{
-      const v = document.getElementById(id).value.trim();
-      if(v) localStorage.setItem('itgirls_'+id, v);
-      else localStorage.removeItem('itgirls_'+id);
-    });
-    load();
-    alert('URLs lokal gespeichert.');
-  });
-
-  document.getElementById('apply').addEventListener('click', ()=>{
-    ids.forEach((id,i)=>{
-      const v = document.getElementById(id).value.trim();
-      const a = document.getElementById(links[i]);
-      if(v){ a.href = v; a.textContent = 'Öffnen'; window.open(v,'_blank'); }
-      else { a.href = '#'; a.textContent = 'Öffnen (URL fehlt)'; }
-    });
-  });
-
-  document.getElementById('reset').addEventListener('click', ()=>{
-    if(!confirm('Alle lokal gespeicherten URLs entfernen?')) return;
-    ids.forEach((id,i)=>{ document.getElementById(id).value = ''; localStorage.removeItem('itgirls_'+id); const a = document.getElementById(links[i]); a.href = '#'; a.textContent = 'Öffnen (URL fehlt)'; });
-  });
-
-  // Initial load
-  load();
-</script>
 </body>
 </html>
